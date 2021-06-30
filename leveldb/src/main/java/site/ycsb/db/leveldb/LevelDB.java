@@ -1,8 +1,9 @@
 package site.ycsb.db.leveldb;
 
-import java.util.logging.Level;
-
 public class LevelDB {
+
+  private long db_instance;
+  private long db_comparator;
 
   public LevelDB(String dir) throws LevelDBException {
     init(dir);

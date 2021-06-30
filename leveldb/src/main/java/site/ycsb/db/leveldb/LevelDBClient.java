@@ -3,16 +3,13 @@ package site.ycsb.db.leveldb;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.stream.JsonReader;
 import site.ycsb.*;
 
-import java.io.StringReader;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
-import java.util.logging.Level;
 
 public class LevelDBClient extends DB {
 
@@ -89,6 +86,7 @@ public class LevelDBClient extends DB {
         }
         result.add(oneresult);
       }
+      db.scanStop();
       return Status.OK;
     } catch (LevelDBException e) {
       return Status.NOT_FOUND;

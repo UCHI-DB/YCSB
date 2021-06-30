@@ -87,7 +87,7 @@ public class CoreWorkload extends Workload {
    * Default number of fields in a record.
    */
   public static final String FIELD_COUNT_PROPERTY_DEFAULT = "10";
-  
+
   private List<String> fieldnames;
 
   /**
@@ -375,6 +375,7 @@ public class CoreWorkload extends Workload {
     if (!orderedinserts) {
       keynum = Utils.hash(keynum);
     }
+    /*
     String value = Long.toString(keynum);
     int fill = zeropadding - value.length();
     String prekey = "user";
@@ -382,6 +383,14 @@ public class CoreWorkload extends Workload {
       prekey += '0';
     }
     return prekey + value;
+     */
+    StringBuilder builder = new StringBuilder();
+    builder.append((char) (keynum & 0xFF));
+    builder.append((char) ((keynum >> 8) & 0xFF));
+    builder.append((char) ((keynum >> 16) & 0xFF));
+    builder.append((char) ((keynum >> 24) & 0xFF));
+    // The keynum is actually an integer
+    return builder.toString();
   }
 
   protected static NumberGenerator getFieldLengthGenerator(Properties p) throws WorkloadException {
@@ -447,7 +456,7 @@ public class CoreWorkload extends Workload {
 
     long insertstart =
         Long.parseLong(p.getProperty(INSERT_START_PROPERTY, INSERT_START_PROPERTY_DEFAULT));
-    long insertcount=
+    long insertcount =
         Integer.parseInt(p.getProperty(INSERT_COUNT_PROPERTY, String.valueOf(recordcount - insertstart)));
     // Confirm valid values for insertstart and insertcount in relation to recordcount
     if (recordcount < (insertstart + insertcount)) {
@@ -655,25 +664,25 @@ public class CoreWorkload extends Workload {
   @Override
   public boolean doTransaction(DB db, Object threadstate) {
     String operation = operationchooser.nextString();
-    if(operation == null) {
+    if (operation == null) {
       return false;
     }
 
     switch (operation) {
-    case "READ":
-      doTransactionRead(db);
-      break;
-    case "UPDATE":
-      doTransactionUpdate(db);
-      break;
-    case "INSERT":
-      doTransactionInsert(db);
-      break;
-    case "SCAN":
-      doTransactionScan(db);
-      break;
-    default:
-      doTransactionReadModifyWrite(db);
+      case "READ":
+        doTransactionRead(db);
+        break;
+      case "UPDATE":
+        doTransactionUpdate(db);
+        break;
+      case "INSERT":
+        doTransactionInsert(db);
+        break;
+      case "SCAN":
+        doTransactionScan(db);
+        break;
+      default:
+        doTransactionReadModifyWrite(db);
     }
 
     return true;
