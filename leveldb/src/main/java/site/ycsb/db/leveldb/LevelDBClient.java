@@ -5,11 +5,16 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import site.ycsb.*;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class LevelDBClient extends DB {
 
@@ -17,24 +22,59 @@ public class LevelDBClient extends DB {
 
   LevelDB db;
 
-  private Map<String, String> deserialize(String content) {
-    JsonObject jobj = new Gson().fromJson(content, JsonObject.class);
-    Map<String, String> result = new HashMap<>();
-    for (Map.Entry<String, JsonElement> entry : jobj.entrySet()) {
-      result.put(entry.getKey(), entry.getValue().getAsString());
+  private Map<String, ByteIterator> deserializeValues(final byte[] values, final Set<String> fields,
+                                                      final Map<String, ByteIterator> result) {
+    final ByteBuffer buf = ByteBuffer.allocate(4);
+
+    int offset = 0;
+    while(offset < values.length) {
+      buf.put(values, offset, 4);
+      buf.flip();
+      final int keyLen = buf.getInt();
+      buf.clear();
+      offset += 4;
+
+      final String key = new String(values, offset, keyLen);
+      offset += keyLen;
+
+      buf.put(values, offset, 4);
+      buf.flip();
+      final int valueLen = buf.getInt();
+      buf.clear();
+      offset += 4;
+
+      if(fields == null || fields.contains(key)) {
+        result.put(key, new ByteArrayByteIterator(values, offset, valueLen));
+      }
+
+      offset += valueLen;
     }
+
     return result;
   }
 
-  private String serialize(Map<String, ByteIterator> values) {
-    StringBuffer result = new StringBuffer();
-    result.append('{');
-    for (Map.Entry<String, ByteIterator> entry : values.entrySet()) {
-      result.append(MessageFormat.format("\"{}\":\"{}\",", entry.getKey(), entry.getValue().toString()));
+  private byte[] serializeValues(final Map<String, ByteIterator> values) throws IOException {
+    try(final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+      final ByteBuffer buf = ByteBuffer.allocate(4);
+
+      for(final Map.Entry<String, ByteIterator> value : values.entrySet()) {
+        final byte[] keyBytes = value.getKey().getBytes(UTF_8);
+        final byte[] valueBytes = value.getValue().toArray();
+
+        buf.putInt(keyBytes.length);
+        baos.write(buf.array());
+        baos.write(keyBytes);
+
+        buf.clear();
+
+        buf.putInt(valueBytes.length);
+        baos.write(buf.array());
+        baos.write(valueBytes);
+
+        buf.clear();
+      }
+      return baos.toByteArray();
     }
-    result.deleteCharAt(result.length() - 1);
-    result.append('}');
-    return result.toString();
   }
 
   @Override
