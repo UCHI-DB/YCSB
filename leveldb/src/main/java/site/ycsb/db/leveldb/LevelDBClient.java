@@ -27,7 +27,7 @@ public class LevelDBClient extends DB {
     final ByteBuffer buf = ByteBuffer.allocate(4);
 
     int offset = 0;
-    while(offset < values.length) {
+    while (offset < values.length) {
       buf.put(values, offset, 4);
       buf.flip();
       final int keyLen = buf.getInt();
@@ -43,7 +43,7 @@ public class LevelDBClient extends DB {
       buf.clear();
       offset += 4;
 
-      if(fields == null || fields.contains(key)) {
+      if (fields == null || fields.contains(key)) {
         result.put(key, new ByteArrayByteIterator(values, offset, valueLen));
       }
 
@@ -54,10 +54,10 @@ public class LevelDBClient extends DB {
   }
 
   private byte[] serializeValues(final Map<String, ByteIterator> values) throws IOException {
-    try(final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+    try (final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
       final ByteBuffer buf = ByteBuffer.allocate(4);
 
-      for(final Map.Entry<String, ByteIterator> value : values.entrySet()) {
+      for (final Map.Entry<String, ByteIterator> value : values.entrySet()) {
         final byte[] keyBytes = value.getKey().getBytes(UTF_8);
         final byte[] valueBytes = value.getValue().toArray();
 
@@ -101,12 +101,8 @@ public class LevelDBClient extends DB {
   @Override
   public Status read(String table, String key, Set<String> fields, Map<String, ByteIterator> result) {
     try {
-      String jsonContent = db.get(key);
-      Map<String, String> content = deserialize(jsonContent);
-      for (String field : fields) {
-        // TODO What if the key is not found
-        result.put(field, new StringByteIterator(content.get(field)));
-      }
+      byte[] content = db.get(key.getBytes(UTF_8));
+      deserializeValues(content, fields, result);
       return Status.OK;
     } catch (LevelDBException e) {
       return Status.NOT_FOUND;
@@ -116,15 +112,12 @@ public class LevelDBClient extends DB {
   @Override
   public Status scan(String table, String startkey, int recordcount, Set<String> fields, Vector<HashMap<String, ByteIterator>> result) {
     try {
-      db.scanStart(startkey);
+      db.scanStart(startkey.getBytes(UTF_8));
       for (int i = 0; i < recordcount; ++i) {
-        Entry entry = db.scanNext();
-        Map<String, String> composed = deserialize(entry.value);
-        HashMap<String, ByteIterator> oneresult = new HashMap<>();
-        for (String field : fields) {
-          oneresult.put(field, new StringByteIterator(composed.get(field)));
-        }
-        result.add(oneresult);
+        byte[] value = db.scanNext();
+        HashMap<String, ByteIterator> oneres = new HashMap<>();
+        deserializeValues(value, fields, oneres);
+        result.add(oneres);
       }
       db.scanStop();
       return Status.OK;
@@ -136,9 +129,9 @@ public class LevelDBClient extends DB {
   @Override
   public Status update(String table, String key, Map<String, ByteIterator> values) {
     try {
-      db.put(key, serialize(values));
+      db.put(key.getBytes(UTF_8), serializeValues(values));
       return Status.OK;
-    } catch (LevelDBException e) {
+    } catch (LevelDBException | IOException e) {
       return Status.ERROR;
     }
   }
@@ -146,9 +139,9 @@ public class LevelDBClient extends DB {
   @Override
   public Status insert(String table, String key, Map<String, ByteIterator> values) {
     try {
-      db.put(key, serialize(values));
+      db.put(key.getBytes(UTF_8), serializeValues(values));
       return Status.OK;
-    } catch (LevelDBException e) {
+    } catch (LevelDBException | IOException e) {
       return Status.ERROR;
     }
   }
@@ -156,7 +149,7 @@ public class LevelDBClient extends DB {
   @Override
   public Status delete(String table, String key) {
     try {
-      db.delete(key);
+      db.delete(key.getBytes(UTF_8));
       return Status.OK;
     } catch (LevelDBException e) {
       return Status.ERROR;
