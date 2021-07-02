@@ -81,7 +81,7 @@ macro(build_colsm)
 
     add_library(colsm_static STATIC IMPORTED)
     set_target_properties(colsm_static
-            PROPERTIES IMPORTED_LOCATION "${COLSM_SHARED_LIB}"
+            PROPERTIES IMPORTED_LOCATION "${COLSM_STATIC_LIB}"
             INTERFACE_INCLUDE_DIRECTORIES "${COLSM_INCLUDE_DIR}")
     add_dependencies(colsm_static colsm_ep)
     file(MAKE_DIRECTORY ${COLSM_INCLUDE_DIR})
@@ -93,4 +93,4 @@ build_colsm()
 
 include_directories(${JNI_INCLUDE_DIRS})
 add_library(colsmjni MODULE jni.cc site_ycsb_db_leveldb_LevelDB.h)
-target_link_libraries(colsmjni ${JNI_LIBRARIES} leveldb)
+target_link_libraries(colsmjni ${JNI_LIBRARIES} colsm_static)
