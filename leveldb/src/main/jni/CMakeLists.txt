@@ -5,6 +5,46 @@ set(CMAKE_CXX_STANDARD 14)
 
 find_package(JNI REQUIRED)
 
+include(ExternalProject)
+
+set(EP_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${UPPERCASE_BUILD_TYPE}}")
+set(EP_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_${UPPERCASE_BUILD_TYPE}}")
+set(EP_CXX_FLAGS "${EP_CXX_FLAGS} -fPIC")
+set(EP_C_FLAGS "${EP_C_FLAGS} -fPIC")
+
+set(EP_COMMON_TOOLCHAIN -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+        -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER})
+
+if(CMAKE_AR)
+    set(EP_COMMON_TOOLCHAIN ${EP_COMMON_TOOLCHAIN} -DCMAKE_AR=${CMAKE_AR})
+endif()
+
+if(CMAKE_RANLIB)
+    set(EP_COMMON_TOOLCHAIN ${EP_COMMON_TOOLCHAIN} -DCMAKE_RANLIB=${CMAKE_RANLIB})
+endif()
+
+# External projects are still able to override the following declarations.
+# cmake command line will favor the last defined variable when a duplicate is
+# encountered. This requires that `EP_COMMON_CMAKE_ARGS` is always the first
+# argument.
+set(EP_COMMON_CMAKE_ARGS
+        ${EP_COMMON_TOOLCHAIN}
+        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        -DCMAKE_C_FLAGS=${EP_C_FLAGS}
+        -DCMAKE_C_FLAGS_${UPPERCASE_BUILD_TYPE}=${EP_C_FLAGS}
+        -DCMAKE_CXX_FLAGS=${EP_CXX_FLAGS}
+        -DCMAKE_CXX_FLAGS_${UPPERCASE_BUILD_TYPE}=${EP_CXX_FLAGS})
+
+set(EP_LOG_OPTIONS
+        LOG_CONFIGURE
+        1
+        LOG_BUILD
+        1
+        LOG_INSTALL
+        1
+        LOG_DOWNLOAD
+        1)
+
 macro(build_colsm)
 
     set(COLSM_REPO_URL "https://github.com/UCHI-DB/colsm.git")
@@ -20,13 +60,14 @@ macro(build_colsm)
 
 
     set(COLSM_STATIC_LIB ${COLSM_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}colsm${_COLSM_LIBRARY_SUFFIX})
+    set(COLSM_SHARED_LIB ${COLSM_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}colsm${_COLSM_LIBRARY_SUFFIX})
     set(COLSM_INCLUDE_DIR ${COLSM_PREFIX}/include)
 
 
     set(COLSM_CMAKE_ARGS
             ${EP_COMMON_TOOLCHAIN}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            "-DCMAKE_INSTALL_PREFIX=${COLSM_PREFIX}"
+            -DCMAKE_INSTALL_PREFIX=${COLSM_PREFIX}
             -DCMAKE_CXX_FLAGS=${EP_CXX_FLAGS}
             -DCMAKE_CXX_FLAGS_${UPPERCASE_BUILD_TYPE}=${EP_CXX_FLAGS}
             -DBUILD_SHARED_LIBS=ON
@@ -39,14 +80,15 @@ macro(build_colsm)
             BUILD_BYPRODUCTS ${COLSM_STATIC_LIB}
             CMAKE_ARGS ${COLSM_CMAKE_ARGS} ${EP_LOG_OPTIONS})
 
-    add_library(colsm_static STATIC IMPORTED)
-    set_target_properties(colsm_static
-            PROPERTIES IMPORTED_LOCATION "${COLSM_STATIC_LIB}"
+    add_library(colsm_shared SHARED IMPORTED)
+    set_target_properties(colsm_shared
+            PROPERTIES IMPORTED_LOCATION "${COLSM_SHARED_LIB}"
             INTERFACE_INCLUDE_DIRECTORIES "${COLSM_INCLUDE_DIR}")
-    add_dependencies(colsm_static colsm_ep)
+    add_dependencies(colsm_shared colsm_ep)
     file(MAKE_DIRECTORY ${COLSM_INCLUDE_DIR})
     include_directories(${COLSM_INCLUDE_DIR})
 endmacro()
+
 
 build_colsm()
 
