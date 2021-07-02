@@ -1,10 +1,10 @@
 package site.ycsb.db.leveldb;
 
 public class Entry {
-  public String key;
-  public String value;
+  public byte[] key;
+  public byte[] value;
 
-  public Entry(String k, String v) {
+  public Entry(byte[] k, byte[] v) {
     key = k;
     value = v;
   }

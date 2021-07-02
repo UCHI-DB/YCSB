@@ -60,7 +60,6 @@ macro(build_colsm)
 
 
     set(COLSM_STATIC_LIB ${COLSM_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}colsm${_COLSM_LIBRARY_SUFFIX})
-    set(COLSM_SHARED_LIB ${COLSM_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}colsm${_COLSM_LIBRARY_SUFFIX})
     set(COLSM_INCLUDE_DIR ${COLSM_PREFIX}/include)
 
 
@@ -80,11 +79,11 @@ macro(build_colsm)
             BUILD_BYPRODUCTS ${COLSM_STATIC_LIB}
             CMAKE_ARGS ${COLSM_CMAKE_ARGS} ${EP_LOG_OPTIONS})
 
-    add_library(colsm_shared SHARED IMPORTED)
-    set_target_properties(colsm_shared
+    add_library(colsm_static STATIC IMPORTED)
+    set_target_properties(colsm_static
             PROPERTIES IMPORTED_LOCATION "${COLSM_SHARED_LIB}"
             INTERFACE_INCLUDE_DIRECTORIES "${COLSM_INCLUDE_DIR}")
-    add_dependencies(colsm_shared colsm_ep)
+    add_dependencies(colsm_static colsm_ep)
     file(MAKE_DIRECTORY ${COLSM_INCLUDE_DIR})
     include_directories(${COLSM_INCLUDE_DIR})
 endmacro()
