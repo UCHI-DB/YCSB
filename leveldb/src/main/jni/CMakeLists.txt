@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.19)
-project(leveldbjni)
+cmake_minimum_required(VERSION 3.16)
+project(colsmjni)
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -28,7 +28,9 @@ macro(build_colsm)
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             "-DCMAKE_INSTALL_PREFIX=${COLSM_PREFIX}"
             -DCMAKE_CXX_FLAGS=${EP_CXX_FLAGS}
-            -DCMAKE_CXX_FLAGS_${UPPERCASE_BUILD_TYPE}=${EP_CXX_FLAGS})
+            -DCMAKE_CXX_FLAGS_${UPPERCASE_BUILD_TYPE}=${EP_CXX_FLAGS}
+            -DBUILD_SHARED_LIBS=ON
+            )
 
 
     externalproject_add(colsm_ep
@@ -41,14 +43,13 @@ macro(build_colsm)
     set_target_properties(colsm_static
             PROPERTIES IMPORTED_LOCATION "${COLSM_STATIC_LIB}"
             INTERFACE_INCLUDE_DIRECTORIES "${COLSM_INCLUDE_DIR}")
-    add_dependencies(colsm_static sboost_ep)
+    add_dependencies(colsm_static colsm_ep)
     file(MAKE_DIRECTORY ${COLSM_INCLUDE_DIR})
     include_directories(${COLSM_INCLUDE_DIR})
-#    set(COLSM_SIMD_FLAGS -msse4.1 -mavx -mavx2 -mavx512f -mavx512bw -mavx512dq -mavx512vl -mbmi2)
 endmacro()
 
+build_colsm()
 
 include_directories(${JNI_INCLUDE_DIRS})
-add_library(leveldbjni MODULE leveldb_jni.cc site_ycsb_db_leveldb_LevelDB.h)
-#set_target_properties(leveldbjni PROPERTIES SUFFIX ".jnilib")
-target_link_libraries(leveldbjni ${JNI_LIBRARIES})
+add_library(colsmjni MODULE jni.cc site_ycsb_db_leveldb_LevelDB.h)
+target_link_libraries(colsmjni ${JNI_LIBRARIES} leveldb)

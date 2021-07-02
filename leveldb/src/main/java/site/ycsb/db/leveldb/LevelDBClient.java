@@ -1,20 +1,17 @@
 package site.ycsb.db.leveldb;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import site.ycsb.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static site.ycsb.db.leveldb.LevelDBStatus.translate;
 
 public class LevelDBClient extends DB {
 
@@ -81,57 +78,45 @@ public class LevelDBClient extends DB {
   public void init() throws DBException {
     super.init();
     String dbDir = getProperties().getProperty(PROPERTY_LEVELDB_DIR);
-    try {
-      db = new LevelDB(dbDir);
-    } catch (LevelDBException e) {
-      throw new DBException(e);
-    }
+    db = new LevelDB(dbDir);
   }
 
   @Override
   public void cleanup() throws DBException {
     super.cleanup();
-    try {
-      db.close();
-    } catch (LevelDBException e) {
-      throw new DBException(e);
-    }
+    db.close();
   }
 
   @Override
   public Status read(String table, String key, Set<String> fields, Map<String, ByteIterator> result) {
-    try {
-      byte[] content = db.get(key.getBytes(UTF_8));
-      deserializeValues(content, fields, result);
-      return Status.OK;
-    } catch (LevelDBException e) {
-      return Status.NOT_FOUND;
+    byte[][] ref = new byte[1][];
+    Status status = translate(db.get(key.getBytes(UTF_8), ref));
+    if (status.isOk()) {
+      deserializeValues(ref[0], fields, result);
     }
+    return status;
   }
 
   @Override
   public Status scan(String table, String startkey, int recordcount, Set<String> fields, Vector<HashMap<String, ByteIterator>> result) {
-    try {
-      db.scanStart(startkey.getBytes(UTF_8));
+    byte[][] values = new byte[recordcount][];
+    Status status = translate(db.scan(startkey.getBytes(UTF_8), recordcount, values));
+    if (status.isOk()) {
       for (int i = 0; i < recordcount; ++i) {
-        byte[] value = db.scanNext();
-        HashMap<String, ByteIterator> oneres = new HashMap<>();
-        deserializeValues(value, fields, oneres);
-        result.add(oneres);
+        HashMap<String, ByteIterator> entry = new HashMap<>();
+        deserializeValues(values[i], fields, entry);
+        result.add(entry);
       }
-      db.scanStop();
-      return Status.OK;
-    } catch (LevelDBException e) {
-      return Status.NOT_FOUND;
     }
+    return status;
   }
 
   @Override
   public Status update(String table, String key, Map<String, ByteIterator> values) {
     try {
-      db.put(key.getBytes(UTF_8), serializeValues(values));
-      return Status.OK;
-    } catch (LevelDBException | IOException e) {
+      Status status = translate(db.put(key.getBytes(UTF_8), serializeValues(values)));
+      return status;
+    } catch (IOException e) {
       return Status.ERROR;
     }
   }
@@ -139,20 +124,14 @@ public class LevelDBClient extends DB {
   @Override
   public Status insert(String table, String key, Map<String, ByteIterator> values) {
     try {
-      db.put(key.getBytes(UTF_8), serializeValues(values));
-      return Status.OK;
-    } catch (LevelDBException | IOException e) {
+      return translate(db.put(key.getBytes(UTF_8), serializeValues(values)));
+    } catch (IOException e) {
       return Status.ERROR;
     }
   }
 
   @Override
   public Status delete(String table, String key) {
-    try {
-      db.delete(key.getBytes(UTF_8));
-      return Status.OK;
-    } catch (LevelDBException e) {
-      return Status.ERROR;
-    }
+    return translate(db.delete(key.getBytes(UTF_8)));
   }
 }

@@ -4,26 +4,28 @@ import java.nio.charset.StandardCharsets;
 
 public class LevelDB {
 
-  private long db_instance;
-  private long db_comparator;
+  private long db;
+  private long comparator;
 
-  public LevelDB(String dir) throws LevelDBException {
+  static {
+    // Load Native Library (C++); calls JNI_OnLoad()
+    System.loadLibrary("colsmjni");
+  }
+
+  public LevelDB(String dir) {
     init(dir.getBytes(StandardCharsets.UTF_8));
   }
 
-  public native void init(byte[] dir) throws LevelDBException;
+  public native void init(byte[] dir);
 
-  public native void close() throws LevelDBException;
+  public native void close();
 
-  public native void put(byte[] key, byte[] value) throws LevelDBException;
+  public native int put(byte[] key, byte[] value);
 
-  public native void delete(byte[] key) throws LevelDBException;
+  public native int delete(byte[] key);
 
-  public native byte[] get(byte[] key) throws LevelDBException;
+  public native int get(byte[] key, byte[][] value);
 
-  public native void scanStart(byte[] key) throws LevelDBException;
+  public native int scan(byte[] key, int limit, byte[][] values);
 
-  public native byte[] scanNext() throws LevelDBException;
-
-  public native void scanStop() throws LevelDBException;
 }
