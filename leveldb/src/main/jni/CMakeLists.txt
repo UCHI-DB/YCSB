@@ -46,7 +46,6 @@ set(EP_LOG_OPTIONS
         1)
 
 macro(build_colsm)
-
     set(COLSM_REPO_URL "https://github.com/UCHI-DB/colsm.git")
 
     if(CMAKE_BUILD_TYPE MATCHES DEBUG)
@@ -64,11 +63,8 @@ macro(build_colsm)
 
 
     set(COLSM_CMAKE_ARGS
-            ${EP_COMMON_TOOLCHAIN}
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            ${EP_COMMON_CMAKE_ARGS}
             -DCMAKE_INSTALL_PREFIX=${COLSM_PREFIX}
-            -DCMAKE_CXX_FLAGS=${EP_CXX_FLAGS}
-            -DCMAKE_CXX_FLAGS_${UPPERCASE_BUILD_TYPE}=${EP_CXX_FLAGS}
             )
 
 
@@ -88,8 +84,8 @@ macro(build_colsm)
 endmacro()
 
 
-#build_colsm()
+build_colsm()
 
 include_directories(${JNI_INCLUDE_DIRS})
-add_library(colsmjni MODULE jni_dummy.cc site_ycsb_db_leveldb_LevelDB.h)
-#target_link_libraries(colsmjni ${JNI_LIBRARIES} colsm_static)
+add_library(colsmjni MODULE jni.cc site_ycsb_db_leveldb_LevelDB.h)
+target_link_libraries(colsmjni ${JNI_LIBRARIES} colsm_static)
