@@ -1,5 +1,6 @@
 package site.ycsb.db.leveldb;
 
+import org.apache.commons.lang3.StringUtils;
 import site.ycsb.*;
 
 import java.io.ByteArrayOutputStream;
@@ -74,10 +75,17 @@ public class LevelDBClient extends DB {
     }
   }
 
+  protected byte[] convert(String input) {
+    return input.getBytes(UTF_8);
+  }
+
   @Override
   public void init() throws DBException {
     super.init();
     String dbDir = getProperties().getProperty(PROPERTY_LEVELDB_DIR);
+    if (StringUtils.isEmpty(dbDir)) {
+      dbDir = "/tmp/testdb";
+    }
     db = new LevelDB(dbDir);
   }
 
@@ -90,7 +98,7 @@ public class LevelDBClient extends DB {
   @Override
   public Status read(String table, String key, Set<String> fields, Map<String, ByteIterator> result) {
     byte[][] ref = new byte[1][];
-    Status status = translate(db.get(key.getBytes(UTF_8), ref));
+    Status status = translate(db.get(convert(key), ref));
     if (status.isOk()) {
       deserializeValues(ref[0], fields, result);
     }
@@ -100,7 +108,7 @@ public class LevelDBClient extends DB {
   @Override
   public Status scan(String table, String startkey, int recordcount, Set<String> fields, Vector<HashMap<String, ByteIterator>> result) {
     byte[][] values = new byte[recordcount][];
-    Status status = translate(db.scan(startkey.getBytes(UTF_8), recordcount, values));
+    Status status = translate(db.scan(convert(startkey), recordcount, values));
     if (status.isOk()) {
       for (int i = 0; i < recordcount; ++i) {
         HashMap<String, ByteIterator> entry = new HashMap<>();
@@ -114,7 +122,7 @@ public class LevelDBClient extends DB {
   @Override
   public Status update(String table, String key, Map<String, ByteIterator> values) {
     try {
-      Status status = translate(db.put(key.getBytes(UTF_8), serializeValues(values)));
+      Status status = translate(db.put(convert(key), serializeValues(values)));
       return status;
     } catch (IOException e) {
       return Status.ERROR;
@@ -124,7 +132,7 @@ public class LevelDBClient extends DB {
   @Override
   public Status insert(String table, String key, Map<String, ByteIterator> values) {
     try {
-      return translate(db.put(key.getBytes(UTF_8), serializeValues(values)));
+      return translate(db.put(convert(key), serializeValues(values)));
     } catch (IOException e) {
       return Status.ERROR;
     }
@@ -132,6 +140,6 @@ public class LevelDBClient extends DB {
 
   @Override
   public Status delete(String table, String key) {
-    return translate(db.delete(key.getBytes(UTF_8)));
+    return translate(db.delete(convert(key)));
   }
 }

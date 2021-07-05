@@ -88,8 +88,8 @@ macro(build_colsm)
 endmacro()
 
 
-build_colsm()
+#build_colsm()
 
 include_directories(${JNI_INCLUDE_DIRS})
-add_library(colsmjni MODULE jni.cc site_ycsb_db_leveldb_LevelDB.h)
-target_link_libraries(colsmjni ${JNI_LIBRARIES} colsm_static)
+add_library(colsmjni MODULE jni_dummy.cc site_ycsb_db_leveldb_LevelDB.h)
+#target_link_libraries(colsmjni ${JNI_LIBRARIES} colsm_static)

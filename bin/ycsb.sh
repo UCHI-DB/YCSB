@@ -231,7 +231,13 @@ else
       CLASSPATH="$CLASSPATH:$f"
     fi
   done
+  
+  # Native Libraries
+  JAVA_OPTS="$JAVA_OPTS -Djava.library.path=$YCSB_HOME/$BINDING_DIR/target/"
 fi
+
+# Debugging
+JAVA_OPTS="$JAVA_OPTS -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
 
 # Couchbase deprecation message
 if [ "${BINDING_DIR}" = "couchbase" ] ; then
@@ -256,5 +262,6 @@ echo "$JAVA_HOME/bin/java $JAVA_OPTS -classpath $CLASSPATH $YCSB_CLASS $YCSB_COM
 # globbing and word splitting.  However, word splitting is the desired effect
 # here.  So, the shellcheck error is disabled for this line.
 # shellcheck disable=SC2086
+echo $JAVA_OPTS
 "$JAVA_HOME/bin/java" $JAVA_OPTS -classpath "$CLASSPATH" $YCSB_CLASS $YCSB_COMMAND -db $BINDING_CLASS $YCSB_ARGS
 
