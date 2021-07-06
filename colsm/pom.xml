@@ -72,7 +72,7 @@
               <outputDirectory>${project.build.directory}</outputDirectory>
               <resources>
                 <resource>
-                  <directory>${project.build.directory}/colsm/build-release/</directory>
+                  <directory>${project.build.directory}/colsm/build-release/jni/</directory>
                   <includes>
                     <include>libcolsmjni.so</include>
                   </includes>

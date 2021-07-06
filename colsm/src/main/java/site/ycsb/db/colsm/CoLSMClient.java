@@ -84,7 +84,7 @@ public class CoLSMClient extends DB {
     super.init();
     String dbDir = getProperties().getProperty(PROPERTY_COLSM_DIR);
     if (StringUtils.isEmpty(dbDir)) {
-      dbDir = "/tmp/testdb";
+      dbDir = "/tmp/colsmtestdb";
     }
     db = new CoLSM(dbDir);
   }

@@ -84,7 +84,7 @@ public class LevelDBClient extends DB {
     super.init();
     String dbDir = getProperties().getProperty(PROPERTY_LEVELDB_DIR);
     if (StringUtils.isEmpty(dbDir)) {
-      dbDir = "/tmp/testdb";
+      dbDir = "/tmp/leveldbtestdb";
     }
     db = new LevelDB(dbDir);
   }
