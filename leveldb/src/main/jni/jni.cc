@@ -1,7 +1,6 @@
 #include <leveldb/db.h>
 #include <leveldb/filter_policy.h>
 
-#include "colsm/comparators.h"
 #include "site_ycsb_db_leveldb_LevelDB.h"
 
 std::string fromByteArray(JNIEnv* env, jbyteArray input) {
