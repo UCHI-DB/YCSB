@@ -1,4 +1,4 @@
-package site.ycsb.db.colsm;
+package site.ycsb.db.leveldb;
 
 import java.nio.charset.StandardCharsets;
 

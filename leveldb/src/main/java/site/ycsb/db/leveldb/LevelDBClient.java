@@ -1,4 +1,4 @@
-package site.ycsb.db.colsm;
+package site.ycsb.db.leveldb;
 
 import org.apache.commons.lang3.StringUtils;
 import site.ycsb.*;
@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static site.ycsb.db.colsm.LevelDBStatus.translate;
+import static site.ycsb.db.leveldb.LevelDBStatus.translate;
 
 public class LevelDBClient extends DB {
 

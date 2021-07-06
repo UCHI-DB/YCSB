@@ -1,4 +1,4 @@
-package site.ycsb.db.colsm;
+package site.ycsb.db.leveldb;
 
 public class LevelDBClient2 extends LevelDBClient {
 
