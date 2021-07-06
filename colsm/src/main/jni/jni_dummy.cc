@@ -25,7 +25,7 @@ jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
         return JNI_ERR;
     }
 
-    jclass tempLocalClassRef = env->FindClass("site/ycsb/db/leveldb/LevelDB");
+    jclass tempLocalClassRef = env->FindClass("site/ycsb/db/colsm/CoLSM");
     levelDB_Class = (jclass) env->NewGlobalRef(tempLocalClassRef);
     env->DeleteLocalRef(tempLocalClassRef);
 
