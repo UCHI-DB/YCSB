@@ -45,39 +45,40 @@ set(EP_LOG_OPTIONS
         LOG_DOWNLOAD
         1)
 
-macro(build_leveldb)
-    set(LEVELDB_REPO_URL "https://github.com/google/leveldb.git")
+macro(build_colsm)
+    set(COLSM_REPO_URL "https://github.com/UCHI-DB/colsm.git")
 
-    set(LEVELDB_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/leveldb_ep-prefix/src/leveldb_ep")
-    set(_LEVELDB_LIBRARY_SUFFIX "${CMAKE_STATIC_LIBRARY_SUFFIX}")
-
-    set(LEVELDB_STATIC_LIB ${LEVELDB_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}leveldb${_LEVELDB_LIBRARY_SUFFIX})
-    set(LEVELDB_INCLUDE_DIR ${LEVELDB_PREFIX}/include)
+    set(COLSM_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/colsm_ep-prefix/src/colsm_ep")
+    set(_COLSM_LIBRARY_SUFFIX "${CMAKE_STATIC_LIBRARY_SUFFIX}")
 
 
-    set(LEVELDB_CMAKE_ARGS
+    set(COLSM_STATIC_LIB ${COLSM_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}leveldb${_COLSM_LIBRARY_SUFFIX})
+    set(COLSM_INCLUDE_DIR ${COLSM_PREFIX}/include)
+
+
+    set(COLSM_CMAKE_ARGS
             ${EP_COMMON_CMAKE_ARGS}
-            -DCMAKE_INSTALL_PREFIX=${LEVELDB_PREFIX}
+            -DCMAKE_INSTALL_PREFIX=${COLSM_PREFIX}
             )
 
 
-    externalproject_add(leveldb_ep
-            GIT_REPOSITORY ${LEVELDB_REPO_URL}
+    externalproject_add(colsm_ep
+            GIT_REPOSITORY ${COLSM_REPO_URL}
             GIT_TAG master
-            BUILD_BYPRODUCTS ${LEVELDB_STATIC_LIB}
-            CMAKE_ARGS ${LEVELDB_CMAKE_ARGS} ${EP_LOG_OPTIONS})
+            BUILD_BYPRODUCTS ${COLSM_STATIC_LIB}
+            CMAKE_ARGS ${COLSM_CMAKE_ARGS} ${EP_LOG_OPTIONS})
 
-    add_library(leveldb_static STATIC IMPORTED)
-    set_target_properties(leveldb_static
-            PROPERTIES IMPORTED_LOCATION "${LEVELDB_STATIC_LIB}"
-            INTERFACE_INCLUDE_DIRECTORIES "${LEVELDB_INCLUDE_DIR}")
-    add_dependencies(leveldb_static leveldb_ep)
-    file(MAKE_DIRECTORY ${LEVELDB_INCLUDE_DIR})
-    include_directories(${LEVELDB_INCLUDE_DIR})
+    add_library(colsm_static STATIC IMPORTED)
+    set_target_properties(colsm_static
+            PROPERTIES IMPORTED_LOCATION "${COLSM_STATIC_LIB}"
+            INTERFACE_INCLUDE_DIRECTORIES "${COLSM_INCLUDE_DIR}")
+    add_dependencies(colsm_static colsm_ep)
+    file(MAKE_DIRECTORY ${COLSM_INCLUDE_DIR})
+    include_directories(${COLSM_INCLUDE_DIR})
 endmacro()
 
 
-build_leveldb()
+build_colsm()
 
 if(CMAKE_BUILD_TYPE MATCHES DEBUG)
     set(CMAKE_DEBUG_EXTENSION "d")
@@ -86,6 +87,6 @@ else()
 endif()
 
 include_directories(${JNI_INCLUDE_DIRS})
-set(LEVELDB_JNI_SHARED_LIB "leveldbjni${CMAKE_DEBUG_EXTENSION}")
-add_library(${LEVELDB_JNI_SHARED_LIB} MODULE jni.cc site_ycsb_db_leveldb_LevelDB.h)
-target_link_libraries(${LEVELDB_JNI_SHARED_LIB} PUBLIC ${JNI_LIBRARIES} leveldb_static)
+set(COLSM_JNI_SHARED_LIB "colsmjni${CMAKE_DEBUG_EXTENSION}")
+add_library(${COLSM_JNI_SHARED_LIB} MODULE jni.cc site_ycsb_db_leveldb_LevelDB.h)
+target_link_libraries(${COLSM_JNI_SHARED_LIB} PUBLIC ${JNI_LIBRARIES} colsm_static)

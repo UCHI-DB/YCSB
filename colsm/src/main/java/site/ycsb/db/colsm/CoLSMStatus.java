@@ -1,8 +1,8 @@
-package site.ycsb.db.leveldb;
+package site.ycsb.db.colsm;
 
 import site.ycsb.Status;
 
-public enum LevelDBStatus {
+public enum CoLSMStatus {
   kOk,
   kNotFound,
   kCorruption,

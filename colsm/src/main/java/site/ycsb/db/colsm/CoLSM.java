@@ -1,8 +1,8 @@
-package site.ycsb.db.leveldb;
+package site.ycsb.db.colsm;
 
 import java.nio.charset.StandardCharsets;
 
-public class LevelDB {
+public class CoLSM {
 
   private long db;
   private long comparator;
@@ -12,7 +12,7 @@ public class LevelDB {
     System.loadLibrary("colsmjni");
   }
 
-  public LevelDB(String dir) {
+  public CoLSM(String dir) {
     init(dir.getBytes(StandardCharsets.UTF_8));
   }
 

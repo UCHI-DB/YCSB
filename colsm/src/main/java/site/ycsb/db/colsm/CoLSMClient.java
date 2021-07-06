@@ -1,4 +1,4 @@
-package site.ycsb.db.leveldb;
+package site.ycsb.db.colsm;
 
 import org.apache.commons.lang3.StringUtils;
 import site.ycsb.*;
@@ -12,13 +12,13 @@ import java.util.Set;
 import java.util.Vector;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static site.ycsb.db.leveldb.LevelDBStatus.translate;
+import static site.ycsb.db.colsm.CoLSMStatus.translate;
 
-public class LevelDBClient extends DB {
+public class CoLSMClient extends DB {
 
-  static final String PROPERTY_LEVELDB_DIR = "leveldb.dir";
+  static final String PROPERTY_COLSM_DIR = "colsm.dir";
 
-  LevelDB db;
+  CoLSM db;
 
   private Map<String, ByteIterator> deserializeValues(final byte[] values, final Set<String> fields,
                                                       final Map<String, ByteIterator> result) {
@@ -82,11 +82,11 @@ public class LevelDBClient extends DB {
   @Override
   public void init() throws DBException {
     super.init();
-    String dbDir = getProperties().getProperty(PROPERTY_LEVELDB_DIR);
+    String dbDir = getProperties().getProperty(PROPERTY_COLSM_DIR);
     if (StringUtils.isEmpty(dbDir)) {
       dbDir = "/tmp/testdb";
     }
-    db = new LevelDB(dbDir);
+    db = new CoLSM(dbDir);
   }
 
   @Override

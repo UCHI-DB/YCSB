@@ -2,7 +2,7 @@
 #include <leveldb/filter_policy.h>
 
 #include "colsm/comparators.h"
-#include "site_ycsb_db_leveldb_LevelDB.h"
+#include "site_ycsb_db_colsm_CoLSM.h"
 
 std::string fromByteArray(JNIEnv* env, jbyteArray input) {
   jint length = env->GetArrayLength(input);
@@ -16,6 +16,7 @@ inline jint translate(leveldb::Status status) { return status.intcode(); }
 
 static jclass levelDB_Class;
 static jfieldID levelDB_db;
+static jfieldID levelDB_comparator;
 
 jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
   // Obtain the JNIEnv from the VM and confirm JNI_VERSION
@@ -30,6 +31,7 @@ jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
 
   // Load the method id
   levelDB_db = env->GetFieldID(levelDB_Class, "db", "J");
+  levelDB_comparator = env->GetFieldID(levelDB_Class, "comparator", "J");
 
   return JNI_VERSION_9;
 }
@@ -43,11 +45,11 @@ void JNICALL JNI_OnUnload(JavaVM* vm, void* reserved) {
   env->DeleteGlobalRef(levelDB_Class);
 }
 
-void JNICALL Java_site_ycsb_db_leveldb_LevelDB_init(JNIEnv* env, jobject caller,
+void JNICALL Java_site_ycsb_db_colsm_CoLSM_init(JNIEnv* env, jobject caller,
                                                     jbyteArray folder) {
   std::string folder_name = fromByteArray(env, folder);
 
-  auto intCompare = leveldb::BytewiseComparator();
+  auto intCompare = colsm::intComparator().release();
   leveldb::DB* db;
 
   leveldb::Options options;
@@ -58,16 +60,20 @@ void JNICALL Java_site_ycsb_db_leveldb_LevelDB_init(JNIEnv* env, jobject caller,
   leveldb::Status status = leveldb::DB::Open(options, folder_name, &db);
   if (status.ok()) {
     env->SetLongField(caller, levelDB_db, (int64_t)db);
+    env->SetLongField(caller, levelDB_comparator, (int64_t)intCompare);
   }
 }
 
-void JNICALL Java_site_ycsb_db_leveldb_LevelDB_close(JNIEnv* env,
+void JNICALL Java_site_ycsb_db_colsm_CoLSM_close(JNIEnv* env,
                                                      jobject caller) {
   leveldb::DB* db = (leveldb::DB*)env->GetLongField(caller, levelDB_db);
+  leveldb::Comparator* comparator =
+      (leveldb::Comparator*)env->GetLongField(caller, levelDB_comparator);
   delete db;
+  delete comparator;
 }
 
-jint JNICALL Java_site_ycsb_db_leveldb_LevelDB_put(JNIEnv* env, jobject caller,
+jint JNICALL Java_site_ycsb_db_colsm_CoLSM_put(JNIEnv* env, jobject caller,
                                                    jbyteArray jkey,
                                                    jbyteArray jvalue) {
   leveldb::DB* db = (leveldb::DB*)env->GetLongField(caller, levelDB_db);
@@ -78,7 +84,7 @@ jint JNICALL Java_site_ycsb_db_leveldb_LevelDB_put(JNIEnv* env, jobject caller,
   return translate(status);
 }
 
-JNIEXPORT jint JNICALL Java_site_ycsb_db_leveldb_LevelDB_delete(
+JNIEXPORT jint JNICALL Java_site_ycsb_db_colsm_CoLSM_delete(
     JNIEnv* env, jobject caller, jbyteArray jkey) {
   leveldb::DB* db = (leveldb::DB*)env->GetLongField(caller, levelDB_db);
   auto key = fromByteArray(env, jkey);
@@ -86,7 +92,7 @@ JNIEXPORT jint JNICALL Java_site_ycsb_db_leveldb_LevelDB_delete(
   return translate(status);
 }
 
-JNIEXPORT jint JNICALL Java_site_ycsb_db_leveldb_LevelDB_get(
+JNIEXPORT jint JNICALL Java_site_ycsb_db_colsm_CoLSM_get(
     JNIEnv* env, jobject caller, jbyteArray jkey, jobjectArray jvalue) {
   leveldb::DB* db = (leveldb::DB*)env->GetLongField(caller, levelDB_db);
   auto key = fromByteArray(env, jkey);
@@ -101,7 +107,7 @@ JNIEXPORT jint JNICALL Java_site_ycsb_db_leveldb_LevelDB_get(
   return translate(status);
 }
 
-JNIEXPORT jint JNICALL Java_site_ycsb_db_leveldb_LevelDB_scan(
+JNIEXPORT jint JNICALL Java_site_ycsb_db_colsm_CoLSM_scan(
     JNIEnv* env, jobject caller, jbyteArray jkey, jint limit,
     jobjectArray jvalues) {
   leveldb::DB* db = (leveldb::DB*)env->GetLongField(caller, levelDB_db);
@@ -116,6 +122,8 @@ JNIEXPORT jint JNICALL Java_site_ycsb_db_leveldb_LevelDB_scan(
                               (const jbyte*)value.data());
       env->SetObjectArrayElement(jvalues, i, jvalue);
       iterator->Next();
+    } else {
+    break;
     }
   }
   delete iterator;
