@@ -44,11 +44,14 @@
             </goals>
             <configuration>
               <target>
-                <mkdir dir="${project.build.directory}/jni"/>
-                <exec executable="cmake" dir="${project.build.directory}/jni" failonerror="true">
-                  <arg line="-DCMAKE_BUILD_TYPE=RELEASE ${basedir}/src/main/jni"/>
+                <exec executable="git" dir="${project.build.directory}" failonerror="true">
+                  <arg line="clone https://github.com/UCHI-DB/colsm.git"/>
                 </exec>
-                <exec executable="make" dir="${project.build.directory}/jni" failonerror="true">
+                <mkdir dir="${project.build.directory}/colsm/build-release"/>
+                <exec executable="cmake" dir="${project.build.directory}/colsm/build-release" failonerror="true">
+                  <arg line="-DCMAKE_BUILD_TYPE=RELEASE ${project.build.directory}/colsm"/>
+                </exec>
+                <exec executable="make" dir="${project.build.directory}/colsm/build-release" failonerror="true">
                   <arg line="VERBOSE=1"/>
                 </exec>
               </target>
@@ -70,7 +73,7 @@
               <outputDirectory>${project.build.directory}</outputDirectory>
               <resources>
                 <resource>
-                  <directory>${project.build.directory}/jni</directory>
+                  <directory>${project.build.directory}/colsm/build-release/jni</directory>
                   <includes>
                     <include>libcolsmjni.so</include>
                   </includes>
