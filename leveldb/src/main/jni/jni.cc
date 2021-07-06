@@ -1,5 +1,6 @@
 #include <leveldb/db.h>
 #include <leveldb/filter_policy.h>
+#include <leveldb/comparator.h>
 
 #include "site_ycsb_db_leveldb_LevelDB.h"
 
