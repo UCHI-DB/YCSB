@@ -111,6 +111,9 @@ public class LevelDBClient extends DB {
     Status status = translate(db.scan(convert(startkey), recordcount, values));
     if (status.isOk()) {
       for (int i = 0; i < recordcount; ++i) {
+        if (values[i] == null) {
+          break;
+        }
         HashMap<String, ByteIterator> entry = new HashMap<>();
         deserializeValues(values[i], fields, entry);
         result.add(entry);

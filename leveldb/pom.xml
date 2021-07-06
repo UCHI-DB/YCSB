@@ -32,6 +32,31 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.8</version>
+        <executions>
+          <execution>
+            <id>make-jni</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <mkdir dir="${project.build.directory}/jni"/>
+                <exec executable="cmake" dir="${project.build.directory}/jni" failonerror="true">
+                  <arg line="-DCMAKE_BUILD_TYPE=RELEASE ${basedir}/src/main/jni"/>
+                </exec>
+                <exec executable="make" dir="${project.build.directory}/jni" failonerror="true">
+                  <arg line="VERBOSE=1"/>
+                </exec>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <artifactId>maven-resources-plugin</artifactId>
         <version>3.1.0</version>
         <executions>
@@ -42,10 +67,10 @@
               <goal>copy-resources</goal>
             </goals>
             <configuration>
-              <outputDirectory>${basedir}/target</outputDirectory>
+              <outputDirectory>${project.build.directory}</outputDirectory>
               <resources>
                 <resource>
-                  <directory>${basedir}/src/main/jni/cmake-build-release/</directory>
+                  <directory>${project.build.directory}/jni</directory>
                   <includes>
                     <include>libcolsmjni.so</include>
                   </includes>
