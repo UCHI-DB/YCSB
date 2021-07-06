@@ -48,14 +48,8 @@ set(EP_LOG_OPTIONS
 macro(build_colsm)
     set(COLSM_REPO_URL "https://github.com/UCHI-DB/colsm.git")
 
-    if(CMAKE_BUILD_TYPE MATCHES DEBUG)
-        set(CMAKE_COLSM_DEBUG_EXTENSION "d")
-    else()
-        set(CMAKE_COLSM_DEBUG_EXTENSION "")
-    endif()
-
     set(COLSM_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/colsm_ep-prefix/src/colsm_ep")
-    set(_COLSM_LIBRARY_SUFFIX "${CMAKE_COLSM_DEBUG_EXTENSION}${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    set(_COLSM_LIBRARY_SUFFIX "${CMAKE_STATIC_LIBRARY_SUFFIX}")
 
 
     set(COLSM_STATIC_LIB ${COLSM_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}leveldb${_COLSM_LIBRARY_SUFFIX})
