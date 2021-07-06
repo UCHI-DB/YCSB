@@ -28,7 +28,6 @@
       <version>3.12.0</version>
     </dependency>
   </dependencies>
-
   <build>
     <plugins>
       <plugin>
@@ -45,9 +44,9 @@
             <configuration>
               <target>
                 <exec executable="git" dir="${project.build.directory}" failonerror="true">
-                  <arg line="clone https://github.com/google/leveldb.git"/>
+                  <arg line="clone https://github.com/UCHI-DB/colsm.git"/>
                 </exec>
-                <mkdir dir="${project.build.directory}/leveldb/build-release"/>
+                <mkdir dir="${project.build.directory}/colsm/build-release"/>
                 <exec executable="cmake" dir="${project.build.directory}/colsm/build-release" failonerror="true">
                   <arg line="-DCMAKE_BUILD_TYPE=RELEASE ${project.build.directory}/colsm"/>
                 </exec>
@@ -73,7 +72,7 @@
               <outputDirectory>${project.build.directory}</outputDirectory>
               <resources>
                 <resource>
-                  <directory>${project.build.directory}/colsm/build-release/jni</directory>
+                  <directory>${project.build.directory}/colsm/build-release/</directory>
                   <includes>
                     <include>libcolsmjni.so</include>
                   </includes>
@@ -85,4 +84,5 @@
       </plugin>
     </plugins>
   </build>
+
 </project>
