@@ -1,6 +1,8 @@
 package site.ycsb.db.colsm;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import site.ycsb.*;
 
 import java.io.ByteArrayOutputStream;
@@ -20,6 +22,8 @@ public class CoLSMClient extends DB {
   static final String PROPERTY_COLSM_DIR = "colsm.dir";
 
   CoLSM db;
+
+  Logger logger = LoggerFactory.getLogger(CoLSMClient.class);
 
   private Map<String, ByteIterator> deserializeValues(final byte[] values, final Set<String> fields,
                                                       final Map<String, ByteIterator> result) {
@@ -80,6 +84,14 @@ public class CoLSMClient extends DB {
     return input.getBytes(ISO_8859_1);
   }
 
+  protected int compose(String input) {
+    int result = 0;
+    for (int i = 0; i < 4; ++i) {
+      result |= (((int) (input.charAt(i))) & 0xFF) << (i * 8);
+    }
+    return result;
+  }
+
   @Override
   public void init() throws DBException {
     super.init();
@@ -98,10 +110,19 @@ public class CoLSMClient extends DB {
 
   @Override
   public Status read(String table, String key, Set<String> fields, Map<String, ByteIterator> result) {
+
     byte[][] ref = new byte[1][];
     Status status = translate(db.get(convert(key), ref));
     if (status.isOk()) {
       deserializeValues(ref[0], fields, result);
+    }
+    if (logger.isDebugEnabled()) {
+      int intkey = compose(key);
+      if (status == Status.NOT_FOUND) {
+        logger.debug("READ NOT FOUND:" + intkey);
+      } else {
+        logger.debug("READ FOUND:" + intkey);
+      }
     }
     return status;
   }
@@ -136,7 +157,12 @@ public class CoLSMClient extends DB {
   @Override
   public Status insert(String table, String key, Map<String, ByteIterator> values) {
     try {
-      return translate(db.put(convert(key), serializeValues(values)));
+      Status status = translate(db.put(convert(key), serializeValues(values)));
+      if (logger.isDebugEnabled()) {
+        int intkey = compose(key);
+        logger.debug("INSERT:" + intkey);
+      }
+      return status;
     } catch (IOException e) {
       return Status.ERROR;
     }
