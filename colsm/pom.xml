@@ -55,7 +55,7 @@
         <executions>
           <execution>
             <id>copy-resource-one</id>
-            <phase>compile</phase>
+            <phase>package</phase>
             <goals>
               <goal>copy-resources</goal>
             </goals>
