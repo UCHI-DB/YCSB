@@ -78,7 +78,7 @@ macro(build_colsm)
 endmacro()
 
 
-build_colsm()
+# build_colsm()
 
 if(CMAKE_BUILD_TYPE MATCHES DEBUG)
     set(CMAKE_DEBUG_EXTENSION "d")
@@ -87,6 +87,6 @@ else()
 endif()
 
 include_directories(${JNI_INCLUDE_DIRS})
-set(COLSM_JNI_SHARED_LIB "colsmjni${CMAKE_DEBUG_EXTENSION}")
-add_library(${COLSM_JNI_SHARED_LIB} MODULE jni.cc site_ycsb_db_leveldb_LevelDB.h)
+set(COLSM_JNI_SHARED_LIB "colsmjni2${CMAKE_DEBUG_EXTENSION}")
+add_library(${COLSM_JNI_SHARED_LIB} MODULE jni_dummy.cc site_ycsb_db_leveldb_LevelDB.h)
 target_link_libraries(${COLSM_JNI_SHARED_LIB} PUBLIC ${JNI_LIBRARIES} colsm_static)

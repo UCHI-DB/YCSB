@@ -64,9 +64,10 @@ jint JNICALL Java_site_ycsb_db_colsm_CoLSM_put(JNIEnv *env, jobject caller,
     std::map<int32_t, std::string> *storage = (std::map<int32_t, std::string> *) env->GetLongField(caller, levelDB_db);
     auto key = fromByteArray(env, jkey);
     int32_t intkey = *((int32_t *) key.data());
-    auto value = fromByteArray(env, jvalue);
-    (*storage)[intkey] = value;
-    return 0;
+//    auto value = fromByteArray(env, jvalue);
+//    (*storage)[intkey] = value;
+//    return 0;
+    return intkey;
 }
 
 JNIEXPORT jint JNICALL Java_site_ycsb_db_colsm_CoLSM_delete(
@@ -74,8 +75,9 @@ JNIEXPORT jint JNICALL Java_site_ycsb_db_colsm_CoLSM_delete(
     std::map<int32_t, std::string> *storage = (std::map<int32_t, std::string> *) env->GetLongField(caller, levelDB_db);
     auto key = fromByteArray(env, jkey);
     int32_t intkey = *((int32_t *) key.data());
-    storage->erase(intkey);
-    return 0;
+//    storage->erase(intkey);
+//    return 0;
+    return intkey;
 }
 
 JNIEXPORT jint JNICALL Java_site_ycsb_db_colsm_CoLSM_get(
@@ -83,15 +85,16 @@ JNIEXPORT jint JNICALL Java_site_ycsb_db_colsm_CoLSM_get(
     std::map<int32_t, std::string> *storage = (std::map<int32_t, std::string> *) env->GetLongField(caller, levelDB_db);
     auto key = fromByteArray(env, jkey);
     int32_t intkey = *((int32_t *) key.data());
-    auto found = storage->find(intkey);
-    if (found == storage->end()) {
-        return 1;
-    }
-    auto value = found->second;
-    auto bytearray = env->NewByteArray(value.size());
-    env->SetByteArrayRegion(bytearray, 0, value.size(), (const jbyte *) value.data());
-    env->SetObjectArrayElement(jvalue, 0, bytearray);
-    return 0;
+//    auto found = storage->find(intkey);
+//    if (found == storage->end()) {
+//        return 1;
+//    }
+//    auto value = found->second;
+//    auto bytearray = env->NewByteArray(value.size());
+//    env->SetByteArrayRegion(bytearray, 0, value.size(), (const jbyte *) value.data());
+//    env->SetObjectArrayElement(jvalue, 0, bytearray);
+//    return 0;
+    return intkey;
 }
 
 JNIEXPORT jint JNICALL Java_site_ycsb_db_colsm_CoLSM_scan(
@@ -100,17 +103,17 @@ JNIEXPORT jint JNICALL Java_site_ycsb_db_colsm_CoLSM_scan(
     std::map<int32_t, std::string> *storage = (std::map<int32_t, std::string> *) env->GetLongField(caller, levelDB_db);
     auto key = fromByteArray(env, jkey);
     int32_t intkey = *((int32_t *) key.data());
-
-    auto ite = storage->lower_bound(intkey);
-    for (int i = 0; i < limit; ++i) {
-        if (ite == storage->end()) {
-            return 0;
-        }
-        auto value = ite->second;
-        auto bytearray = env->NewByteArray(value.size());
-        env->SetByteArrayRegion(bytearray, 0, value.size(), (const jbyte *) value.data());
-        env->SetObjectArrayElement(jvalues, i, bytearray);
-        ite++;
-    }
-    return 0;
+    return intkey;
+//    auto ite = storage->lower_bound(intkey);
+//    for (int i = 0; i < limit; ++i) {
+//        if (ite == storage->end()) {
+//            return 0;
+//        }
+//        auto value = ite->second;
+//        auto bytearray = env->NewByteArray(value.size());
+//        env->SetByteArrayRegion(bytearray, 0, value.size(), (const jbyte *) value.data());
+//        env->SetObjectArrayElement(jvalues, i, bytearray);
+//        ite++;
+//    }
+//    return 0;
 }
