@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static site.ycsb.db.colsm.CoLSMStatus.translate;
 
@@ -76,7 +77,7 @@ public class CoLSMClient extends DB {
   }
 
   protected byte[] convert(String input) {
-    return input.getBytes(UTF_8);
+    return input.getBytes(ISO_8859_1);
   }
 
   @Override
