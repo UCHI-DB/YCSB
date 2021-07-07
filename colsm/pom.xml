@@ -44,41 +44,10 @@
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <version>1.2.3</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
-
-
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.8</version>
-        <executions>
-          <execution>
-            <id>make-jni</id>
-            <phase>compile</phase>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <configuration>
-              <target>
-                <exec executable="git" dir="${project.build.directory}" failonerror="true">
-                  <arg line="clone https://github.com/UCHI-DB/colsm.git"/>
-                </exec>
-                <mkdir dir="${project.build.directory}/colsm/build-release"/>
-                <exec executable="cmake" dir="${project.build.directory}/colsm/build-release" failonerror="true">
-                  <arg line="-DCMAKE_BUILD_TYPE=RELEASE ${project.build.directory}/colsm"/>
-                </exec>
-                <exec executable="make" dir="${project.build.directory}/colsm/build-release" failonerror="true">
-                  <arg line="VERBOSE=1"/>
-                </exec>
-              </target>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
@@ -86,15 +55,16 @@
         <executions>
           <execution>
             <id>copy-resource-one</id>
-            <phase>package</phase>
+            <phase>compile</phase>
             <goals>
               <goal>copy-resources</goal>
             </goals>
             <configuration>
               <outputDirectory>${project.build.directory}</outputDirectory>
+              <!--              <outputDirectory>${project.basedir}/src/main/resources/</outputDirectory>-->
               <resources>
                 <resource>
-                  <directory>${project.build.directory}/colsm/build-release/jni/</directory>
+                  <directory>${project.basedir}/src/main/resources</directory>
                   <includes>
                     <include>libcolsmjni.so</include>
                   </includes>
@@ -106,6 +76,68 @@
       </plugin>
     </plugins>
   </build>
-
+  <profiles>
+    <profile>
+      <id>native-build</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>1.8</version>
+            <executions>
+              <execution>
+                <id>make-jni</id>
+                <phase>compile</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <exec executable="git" dir="${project.build.directory}" failonerror="true">
+                      <arg line="clone https://github.com/UCHI-DB/colsm.git"/>
+                    </exec>
+                    <mkdir dir="${project.build.directory}/colsm/build-release"/>
+                    <exec executable="cmake" dir="${project.build.directory}/colsm/build-release" failonerror="true">
+                      <arg line="-DCMAKE_BUILD_TYPE=RELEASE ${project.build.directory}/colsm"/>
+                    </exec>
+                    <exec executable="make" dir="${project.build.directory}/colsm/build-release" failonerror="true">
+                      <arg line="VERBOSE=1"/>
+                    </exec>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>3.2.0</version>
+            <executions>
+              <execution>
+                <id>copy-resource-one</id>
+                <phase>compile</phase>
+                <goals>
+                  <goal>copy-resources</goal>
+                </goals>
+                <configuration>
+                  <!--                  <outputDirectory>${project.build.directory}</outputDirectory>-->
+                  <outputDirectory>${project.basedir}/src/main/resources/</outputDirectory>
+                  <resources>
+                    <resource>
+                      <directory>${project.build.directory}/colsm/build-release/jni/</directory>
+                      <includes>
+                        <include>libcolsmjni.so</include>
+                      </includes>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>
