@@ -116,14 +116,6 @@ public class CoLSMClient extends DB {
     if (status.isOk()) {
       deserializeValues(ref[0], fields, result);
     }
-    if (logger.isDebugEnabled()) {
-      int intkey = compose(key);
-      if (status == Status.NOT_FOUND) {
-        logger.debug("READ NOT FOUND:" + intkey);
-      } else {
-        logger.debug("READ FOUND:" + intkey);
-      }
-    }
     return status;
   }
 
@@ -158,10 +150,6 @@ public class CoLSMClient extends DB {
   public Status insert(String table, String key, Map<String, ByteIterator> values) {
     try {
       Status status = translate(db.put(convert(key), serializeValues(values)));
-      if (logger.isDebugEnabled()) {
-        int intkey = compose(key);
-        logger.debug("INSERT:" + intkey);
-      }
       return status;
     } catch (IOException e) {
       return Status.ERROR;
