@@ -77,7 +77,8 @@ macro(build_colsm)
     include_directories(${COLSM_INCLUDE_DIR})
 endmacro()
 
-
+# This build file is not actually being invoked by Maven.
+# Maven will download colsm from git and build it.
 # build_colsm()
 
 if(CMAKE_BUILD_TYPE MATCHES DEBUG)
@@ -88,5 +89,5 @@ endif()
 
 include_directories(${JNI_INCLUDE_DIRS})
 set(COLSM_JNI_SHARED_LIB "colsmjni2${CMAKE_DEBUG_EXTENSION}")
-add_library(${COLSM_JNI_SHARED_LIB} MODULE jni_dummy.cc site_ycsb_db_leveldb_LevelDB.h)
+add_library(${COLSM_JNI_SHARED_LIB} MODULE jni_dummy.cc site_ycsb_db_colsm_CoLSM.h)
 target_link_libraries(${COLSM_JNI_SHARED_LIB} PUBLIC ${JNI_LIBRARIES} colsm_static)
