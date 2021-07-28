@@ -23,7 +23,7 @@ public class CoLSMClient extends DB {
 
   CoLSM db;
 
-  Logger logger = LoggerFactory.getLogger(CoLSMClient.class);
+//  Logger logger = LoggerFactory.getLogger(CoLSMClient.class);
 
   protected Map<String, ByteIterator> deserializeValues(final byte[] values, final Set<String> fields,
                                                       final Map<String, ByteIterator> result) {
