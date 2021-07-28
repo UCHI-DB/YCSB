@@ -2,6 +2,7 @@
  *  This is a dummy implementation of LevelDB JNI for easy test of JNI functionality
  */
 #include <map>
+#include <fstream>
 #include "site_ycsb_db_colsm_CoLSM.h"
 
 std::string fromByteArray(JNIEnv *env, jbyteArray input) {
@@ -67,6 +68,10 @@ jint JNICALL Java_site_ycsb_db_colsm_CoLSM_put(JNIEnv *env, jobject caller,
 //    auto value = fromByteArray(env, jvalue);
 //    (*storage)[intkey] = value;
 //    return 0;
+    ofstream fs;
+    fs.open("output");
+    fs << "Put " << intkey << '\n';
+    fs.close();
     return intkey;
 }
 
