@@ -2,6 +2,7 @@
  *  This is a dummy implementation of LevelDB JNI for easy test of JNI functionality
  */
 #include <map>
+#include <fstream>
 #include "site_ycsb_db_leveldb_LevelDB.h"
 
 std::string fromByteArray(JNIEnv *env, jbyteArray input) {

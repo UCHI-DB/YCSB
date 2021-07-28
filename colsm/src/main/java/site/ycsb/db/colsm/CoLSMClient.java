@@ -25,7 +25,7 @@ public class CoLSMClient extends DB {
 
   Logger logger = LoggerFactory.getLogger(CoLSMClient.class);
 
-  private Map<String, ByteIterator> deserializeValues(final byte[] values, final Set<String> fields,
+  protected Map<String, ByteIterator> deserializeValues(final byte[] values, final Set<String> fields,
                                                       final Map<String, ByteIterator> result) {
     final ByteBuffer buf = ByteBuffer.allocate(4);
 
@@ -56,7 +56,7 @@ public class CoLSMClient extends DB {
     return result;
   }
 
-  private byte[] serializeValues(final Map<String, ByteIterator> values) throws IOException {
+  protected byte[] serializeValues(final Map<String, ByteIterator> values) throws IOException {
     try (final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
       final ByteBuffer buf = ByteBuffer.allocate(4);
 
