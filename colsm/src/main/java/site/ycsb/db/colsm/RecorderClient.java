@@ -140,7 +140,7 @@ public class RecorderClient extends DB {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    return Status.OK;
+    return inner.insert(table,key,values);
   }
 
   @Override
