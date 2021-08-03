@@ -68,11 +68,12 @@
             </executions>
           </plugin>
           <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-resources-plugin</artifactId>
             <version>3.2.0</version>
             <executions>
               <execution>
-                <id>copy-resource-one</id>
+                <id>copy-lib-to-cache</id>
                 <phase>compile</phase>
                 <goals>
                   <goal>copy-resources</goal>
@@ -97,17 +98,16 @@
             <version>3.2.0</version>
             <executions>
               <execution>
-                <id>copy-resource-one</id>
+                <id>copy-lib-to-target-p</id>
                 <phase>package</phase>
                 <goals>
                   <goal>copy-resources</goal>
                 </goals>
                 <configuration>
                   <outputDirectory>${project.build.directory}</outputDirectory>
-                  <!--              <outputDirectory>${project.basedir}/src/main/resources/</outputDirectory>-->
                   <resources>
                     <resource>
-                      <directory>${project.basedir}/src/main/resources</directory>
+                      <directory>${project.build.directory}/jni/</directory>
                       <includes>
                         <include>libleveldbjni.so</include>
                       </includes>
@@ -129,7 +129,7 @@
         <version>3.2.0</version>
         <executions>
           <execution>
-            <id>copy-resource-one</id>
+            <id>copy-lib-to-target</id>
             <phase>package</phase>
             <goals>
               <goal>copy-resources</goal>
