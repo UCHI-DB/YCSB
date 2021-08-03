@@ -72,6 +72,7 @@ void JNICALL Java_site_ycsb_db_leveldb_LevelDB_init(JNIEnv* env, jobject caller,
   leveldb::Options options;
   options.comparator = leveldb::BytewiseComparator();
   options.create_if_missing = true;
+  options.compression = leveldb::kNoCompression;
   options.block_size = 2*1024*1024;
   options.filter_policy = leveldb::NewBloomFilterPolicy(10);
 
