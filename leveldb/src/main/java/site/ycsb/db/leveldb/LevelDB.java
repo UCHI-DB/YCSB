@@ -5,7 +5,8 @@ import java.nio.charset.StandardCharsets;
 public class LevelDB {
 
   private long db;
-  private long comparator;
+  // Filter Policy
+  private long fp;
 
   static {
     // Load Native Library (C++); calls JNI_OnLoad()

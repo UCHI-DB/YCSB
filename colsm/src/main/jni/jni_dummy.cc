@@ -59,6 +59,7 @@ void JNICALL Java_site_ycsb_db_colsm_CoLSM_close(JNIEnv *env,
     delete storage;
 }
 
+using namespace std;
 jint JNICALL Java_site_ycsb_db_colsm_CoLSM_put(JNIEnv *env, jobject caller,
                                                    jbyteArray jkey,
                                                    jbyteArray jvalue) {
