@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class RecorderClient extends DB {
@@ -109,7 +110,7 @@ public class RecorderClient extends DB {
     Status s = inner.read(table,key,fields,result);
     if(s == Status.NOT_FOUND) {
       try {
-        output.write(key.getBytes(UTF_8));
+        output.write(key.getBytes(ISO_8859_1));
         output.write('\n');
       } catch (IOException e) {
         throw new RuntimeException(e);
