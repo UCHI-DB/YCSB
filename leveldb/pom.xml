@@ -39,7 +39,7 @@
 
   <profiles>
     <profile>
-      <id>native-build</id>
+      <id>native-leveldb-build</id>
       <build>
         <plugins>
           <plugin>
