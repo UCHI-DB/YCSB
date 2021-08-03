@@ -16,6 +16,8 @@ public class RecorderClient extends DB {
 
   FileOutputStream output;
 
+  CoLSMClient inner;
+
   protected Map<String, ByteIterator> deserializeValues(final byte[] values, final Set<String> fields,
                                                         final Map<String, ByteIterator> result) {
     final ByteBuffer buf = ByteBuffer.allocate(4);
@@ -78,9 +80,13 @@ public class RecorderClient extends DB {
     o.write(value >> 24);
   }
 
+  public RecorderClient() {
+    inner = new CoLSMClient();
+  }
+
   @Override
   public void init() throws DBException {
-    super.init();
+    inner.init();
     try {
       output = new FileOutputStream("workload_log");
     } catch (FileNotFoundException e) {
@@ -90,7 +96,7 @@ public class RecorderClient extends DB {
 
   @Override
   public void cleanup() throws DBException {
-    super.cleanup();
+    inner.cleanup();
     try {
       output.close();
     } catch (IOException e) {
@@ -100,17 +106,26 @@ public class RecorderClient extends DB {
 
   @Override
   public Status read(String table, String key, Set<String> fields, Map<String, ByteIterator> result) {
-    return Status.NOT_IMPLEMENTED;
+    Status s = inner.read(table,key,fields,result);
+    if(s == Status.NOT_FOUND) {
+      try {
+        output.write(key.getBytes(UTF_8));
+        output.write('\n');
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    return s;
   }
 
   @Override
   public Status scan(String table, String startkey, int recordcount, Set<String> fields, Vector<HashMap<String, ByteIterator>> result) {
-    return Status.NOT_IMPLEMENTED;
+    return inner.scan(table,startkey,recordcount,fields,result);
   }
 
   @Override
   public Status update(String table, String key, Map<String, ByteIterator> values) {
-    return Status.NOT_IMPLEMENTED;
+    return inner.update(table,key,values);
   }
 
   @Override
@@ -118,9 +133,9 @@ public class RecorderClient extends DB {
     try {
       byte[] bytekey = key.getBytes(StandardCharsets.ISO_8859_1);
       byte[] bytevalue = serializeValues(values);
-      writeInt(output,bytekey.length);
+      writeInt(output, bytekey.length);
       output.write(bytekey);
-      writeInt(output,bytevalue.length);
+      writeInt(output, bytevalue.length);
       output.write(bytevalue);
     } catch (IOException e) {
       throw new RuntimeException(e);
