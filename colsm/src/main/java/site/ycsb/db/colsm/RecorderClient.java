@@ -107,11 +107,12 @@ public class RecorderClient extends DB {
 
   @Override
   public Status read(String table, String key, Set<String> fields, Map<String, ByteIterator> result) {
-    Status s = inner.read(table,key,fields,result);
-    if(s == Status.NOT_FOUND) {
+    Status s = inner.read(table, key, fields, result);
+    if (s == Status.NOT_FOUND) {
       try {
-        output.write(key.getBytes(ISO_8859_1));
-        output.write('\n');
+        byte[] notfound = key.getBytes(ISO_8859_1);
+        writeInt(output, notfound.length);
+        output.write(notfound);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -121,12 +122,12 @@ public class RecorderClient extends DB {
 
   @Override
   public Status scan(String table, String startkey, int recordcount, Set<String> fields, Vector<HashMap<String, ByteIterator>> result) {
-    return inner.scan(table,startkey,recordcount,fields,result);
+    return inner.scan(table, startkey, recordcount, fields, result);
   }
 
   @Override
   public Status update(String table, String key, Map<String, ByteIterator> values) {
-    return inner.update(table,key,values);
+    return inner.update(table, key, values);
   }
 
   @Override
@@ -141,7 +142,7 @@ public class RecorderClient extends DB {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    return inner.insert(table,key,values);
+    return inner.insert(table, key, values);
   }
 
   @Override
