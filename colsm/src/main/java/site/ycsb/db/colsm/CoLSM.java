@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets;
 public class CoLSM {
 
   private long db;
-  private long comparator;
+  private long options;
 
   static {
     // Load Native Library (C++); calls JNI_OnLoad()
