@@ -2,7 +2,6 @@ package site.ycsb.db.colsm;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import site.ycsb.*;
 
 import java.io.ByteArrayOutputStream;
@@ -14,8 +13,6 @@ import java.util.Set;
 import java.util.Vector;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static site.ycsb.db.colsm.CoLSMStatus.translate;
 
 public class CoLSMClient extends DB {
 
@@ -23,9 +20,26 @@ public class CoLSMClient extends DB {
 
   CoLSM db;
 
-  Logger logger = LoggerFactory.getLogger(CoLSMClient.class);
+  static Status translate(int lstatus) {
+    switch (lstatus) {
+      case 0:
+        return Status.OK;
+      case 1:
+        return Status.NOT_FOUND;
+      case 2:
+        return Status.ERROR;
+      case 3:
+        return Status.NOT_IMPLEMENTED;
+      case 4:
+        return Status.BAD_REQUEST;
+      case 5:
+        return Status.ERROR;
+      default:
+        return Status.ERROR;
+    }
+  }
 
-  private Map<String, ByteIterator> deserializeValues(final byte[] values, final Set<String> fields,
+  protected Map<String, ByteIterator> deserializeValues(final byte[] values, final Set<String> fields,
                                                       final Map<String, ByteIterator> result) {
     final ByteBuffer buf = ByteBuffer.allocate(4);
 
@@ -37,7 +51,7 @@ public class CoLSMClient extends DB {
       buf.clear();
       offset += 4;
 
-      final String key = new String(values, offset, keyLen);
+      final String key = new String(values, offset, keyLen, ISO_8859_1);
       offset += keyLen;
 
       buf.put(values, offset, 4);
@@ -56,12 +70,12 @@ public class CoLSMClient extends DB {
     return result;
   }
 
-  private byte[] serializeValues(final Map<String, ByteIterator> values) throws IOException {
+  protected byte[] serializeValues(final Map<String, ByteIterator> values) throws IOException {
     try (final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
       final ByteBuffer buf = ByteBuffer.allocate(4);
 
       for (final Map.Entry<String, ByteIterator> value : values.entrySet()) {
-        final byte[] keyBytes = value.getKey().getBytes(UTF_8);
+        final byte[] keyBytes = value.getKey().getBytes(ISO_8859_1);
         final byte[] valueBytes = value.getValue().toArray();
 
         buf.putInt(keyBytes.length);

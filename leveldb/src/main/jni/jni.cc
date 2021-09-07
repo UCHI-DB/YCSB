@@ -33,6 +33,8 @@ inline jint translate(leveldb::Status status) {
 
 static jclass levelDB_Class;
 static jfieldID levelDB_db;
+// Filter Policy
+static jfieldID levelDB_fp;
 
 jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
   // Obtain the JNIEnv from the VM and confirm JNI_VERSION
@@ -47,6 +49,7 @@ jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
 
   // Load the method id
   levelDB_db = env->GetFieldID(levelDB_Class, "db", "J");
+  levelDB_fp = env->GetFieldID(levelDB_Class, "fp", "J");
 
   return JNI_VERSION_9;
 }
@@ -64,24 +67,28 @@ void JNICALL Java_site_ycsb_db_leveldb_LevelDB_init(JNIEnv* env, jobject caller,
                                                     jbyteArray folder) {
   std::string folder_name = fromByteArray(env, folder);
 
-  auto intCompare = leveldb::BytewiseComparator();
   leveldb::DB* db;
 
   leveldb::Options options;
-  options.comparator = intCompare;
+  options.comparator = leveldb::BytewiseComparator();
   options.create_if_missing = true;
+  options.compression = leveldb::kNoCompression;
+  options.block_size = 2*1024*1024;
   options.filter_policy = leveldb::NewBloomFilterPolicy(10);
 
   leveldb::Status status = leveldb::DB::Open(options, folder_name, &db);
   if (status.ok()) {
     env->SetLongField(caller, levelDB_db, (int64_t)db);
+    env->SetLongField(caller, levelDB_fp, (int64_t)options.filter_policy);
   }
 }
 
 void JNICALL Java_site_ycsb_db_leveldb_LevelDB_close(JNIEnv* env,
                                                      jobject caller) {
   leveldb::DB* db = (leveldb::DB*)env->GetLongField(caller, levelDB_db);
+  leveldb::FilterPolicy* fp = (leveldb::FilterPolicy*)env->GetLongField(caller, levelDB_fp);
   delete db;
+  delete fp;
 }
 
 jint JNICALL Java_site_ycsb_db_leveldb_LevelDB_put(JNIEnv* env, jobject caller,

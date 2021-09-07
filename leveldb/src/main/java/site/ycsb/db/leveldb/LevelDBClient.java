@@ -6,19 +6,37 @@ import site.ycsb.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static site.ycsb.db.leveldb.LevelDBStatus.translate;
 
 public class LevelDBClient extends DB {
 
   static final String PROPERTY_LEVELDB_DIR = "leveldb.dir";
 
   LevelDB db;
+
+  static Status translate(int lstatus) {
+    switch (lstatus) {
+      case 0:
+        return Status.OK;
+      case 1:
+        return Status.NOT_FOUND;
+      case 2:
+        return Status.ERROR;
+      case 3:
+        return Status.NOT_IMPLEMENTED;
+      case 4:
+        return Status.BAD_REQUEST;
+      case 5:
+        return Status.ERROR;
+      default:
+        return Status.ERROR;
+    }
+  }
 
   private Map<String, ByteIterator> deserializeValues(final byte[] values, final Set<String> fields,
                                                       final Map<String, ByteIterator> result) {
@@ -32,7 +50,7 @@ public class LevelDBClient extends DB {
       buf.clear();
       offset += 4;
 
-      final String key = new String(values, offset, keyLen);
+      final String key = new String(values, offset, keyLen,StandardCharsets.ISO_8859_1);
       offset += keyLen;
 
       buf.put(values, offset, 4);
@@ -56,7 +74,7 @@ public class LevelDBClient extends DB {
       final ByteBuffer buf = ByteBuffer.allocate(4);
 
       for (final Map.Entry<String, ByteIterator> value : values.entrySet()) {
-        final byte[] keyBytes = value.getKey().getBytes(UTF_8);
+        final byte[] keyBytes = value.getKey().getBytes(StandardCharsets.ISO_8859_1);
         final byte[] valueBytes = value.getValue().toArray();
 
         buf.putInt(keyBytes.length);
@@ -76,7 +94,7 @@ public class LevelDBClient extends DB {
   }
 
   protected byte[] convert(String input) {
-    return input.getBytes(UTF_8);
+    return input.getBytes(StandardCharsets.ISO_8859_1);
   }
 
   @Override

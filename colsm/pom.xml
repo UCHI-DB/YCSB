@@ -45,6 +45,12 @@
       <artifactId>logback-classic</artifactId>
       <version>1.2.3</version>
     </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>RELEASE</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <profiles>
@@ -86,7 +92,7 @@
             <version>3.2.0</version>
             <executions>
               <execution>
-                <id>copy-resource-one</id>
+                <id>copy-lib-to-resources</id>
                 <phase>compile</phase>
                 <goals>
                   <goal>copy-resources</goal>
@@ -97,32 +103,6 @@
                   <resources>
                     <resource>
                       <directory>${project.build.directory}/colsm/build-release/jni/</directory>
-                      <includes>
-                        <include>libcolsmjni.so</include>
-                      </includes>
-                    </resource>
-                  </resources>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-resources-plugin</artifactId>
-            <version>3.2.0</version>
-            <executions>
-              <execution>
-                <id>copy-resource-one</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>copy-resources</goal>
-                </goals>
-                <configuration>
-                  <outputDirectory>${project.build.directory}</outputDirectory>
-                  <!--              <outputDirectory>${project.basedir}/src/main/resources/</outputDirectory>-->
-                  <resources>
-                    <resource>
-                      <directory>${project.basedir}/src/main/resources</directory>
                       <includes>
                         <include>libcolsmjni.so</include>
                       </includes>
@@ -144,7 +124,7 @@
         <version>3.2.0</version>
         <executions>
           <execution>
-            <id>copy-resource-one</id>
+            <id>copy-lib-to-target</id>
             <phase>package</phase>
             <goals>
               <goal>copy-resources</goal>

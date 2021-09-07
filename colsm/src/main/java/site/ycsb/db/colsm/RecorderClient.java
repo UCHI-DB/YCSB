@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class RecorderClient extends DB {
 
@@ -18,12 +19,43 @@ public class RecorderClient extends DB {
 
   CoLSMClient inner;
 
+  protected Map<String, ByteIterator> deserializeValues(final byte[] values, final Set<String> fields,
+                                                        final Map<String, ByteIterator> result) {
+    final ByteBuffer buf = ByteBuffer.allocate(4);
+
+    int offset = 0;
+    while (offset < values.length) {
+      buf.put(values, offset, 4);
+      buf.flip();
+      final int keyLen = buf.getInt();
+      buf.clear();
+      offset += 4;
+
+      final String key = new String(values, offset, keyLen);
+      offset += keyLen;
+
+      buf.put(values, offset, 4);
+      buf.flip();
+      final int valueLen = buf.getInt();
+      buf.clear();
+      offset += 4;
+
+      if (fields == null || fields.contains(key)) {
+        result.put(key, new ByteArrayByteIterator(values, offset, valueLen));
+      }
+
+      offset += valueLen;
+    }
+
+    return result;
+  }
+
   protected byte[] serializeValues(final Map<String, ByteIterator> values) throws IOException {
     try (final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
       final ByteBuffer buf = ByteBuffer.allocate(4);
 
       for (final Map.Entry<String, ByteIterator> value : values.entrySet()) {
-        final byte[] keyBytes = value.getKey().getBytes(ISO_8859_1);
+        final byte[] keyBytes = value.getKey().getBytes(UTF_8);
         final byte[] valueBytes = value.getValue().toArray();
 
         buf.putInt(keyBytes.length);
